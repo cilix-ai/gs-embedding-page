@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css" 
+        integrity="sha384-DyZ88mC6Up2uqS4h/KRgHuoeGwBcD4Ng9SiP4dIRy0EXTlnuz47vAwmeGwVChigm" 
+        crossorigin="anonymous"/>
+    <link rel="icon" type="image/png" href="images/cilix_logo_nc_w.png"/>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" 
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$','$$'], ['\\[','\\]']],
+                processEscapes: true,
+                tags: 'ams'
+            },
+            chtml: {
+                linebreaks: { automatic: true, width: 'container' }
+            },
+            options: {
+                skipHtmlTags: ['script','noscript','style','textarea','pre','code']
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    <title>Learning Unified Representation of 3D Gaussian Splatting</title>
+</head>
+<body>
+    <div class="m-0" id="main">
+        <div class="info-banner" id="info-banner" style="background-image: url(images/sfvae_pred_5.png)">
+            <div class="background-filter py-5">
+                <div class="wrapper d-flex justify-content-between m-auto px-4 py-5 align-items-center">
+                    <div class="first">
+                        <h2>Learning Unified Representation of 3D Gaussian Splatting</h2>
+                        <div>Anonymous Authors</div>
+                        <div class="mt-5 d-inline-flex">
+                            <a href="#" class="d-flex align-items-center">
+                                <img src="images/icons/arxiv-logomark-small.svg" alt="arxiv" class="profile-info-icon" style="height: 20px;"/>
+                                <span>Paper</span>
+                                <span class="badge rounded-pill bg-secondary ms-1" style="font-size: 10px;">Anonymous</span>
+                            </a>
+                            <a href="#" class="d-flex align-items-center">
+                                <i class="fab fa-github profile-info-icon"></i> 
+                                <span>Code</span>
+                                <span class="badge rounded-pill bg-secondary ms-1" style="font-size: 10px;">Coming Soon</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row m-0 mt-4 p-0 wrapper" style="flex-grow: 1; overflow: hidden;">
+            <div class="col-md-12 col-lg-12 p-4 tab-content">
+
+                <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+
+                    <div class="mb-5">
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <h4 class="m-0">Abstract</h4>
+                            <button class="btn btn-light btn-collapse hide" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAbs" aria-expanded="false" aria-controls="collapseAbs">
+                                <i class="bi bi-arrows-collapse"></i>
+                            </button>
+                        </div>
+                        <div class="collapse show" id="collapseAbs">
+                            <p style="font-style: italic;">
+                                A well-designed vectorized representation is crucial for the learning systems natively based on 3D Gaussian Splatting. While 3DGS enables efficient and explicit 3D reconstruction, its parameter-based representation remains hard to learn as features, especially for neural-network-based models. Directly feeding raw Gaussian parameters into learning frameworks fails to address the non-unique and heterogeneous nature of the Gaussian parameterization, yielding highly data-dependent models. This challenge motivates us to explore a more principled approach to represent 3D Gaussian Splatting in neural networks that preserves the underlying color and geometric structure while enforcing unique mapping and channel homogeneity. In this paper, we propose an embedding representation of 3DGS based on continuous submanifold fields that encapsulate the intrinsic information of Gaussian primitives, thereby benefiting the learning of 3DGS.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="mb-5">
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <h4 class="m-0">Motivation</h4>
+                            <button class="btn btn-light btn-collapse hide" type="button" data-bs-toggle="collapse" data-bs-target="#collapseMoti" aria-expanded="false" aria-controls="collapseMoti">
+                                <i class="bi bi-arrows-collapse"></i>
+                            </button>
+                        </div>
+                        <div class="collapse show" id="collapseMoti">
+                            <p>
+                                3D Gaussian Splatting (3DGS) enables high-fidelity and real-time view synthesis by parameterizing each primitive with
+                                <span class="math">\( \boldsymbol{\theta} = \{\boldsymbol{\mu}, \mathbf{q}, \mathbf{s}, \mathbf{c}, o\}\)</span>, 
+                                where \(\boldsymbol{\mu}\) is position, \(\mathbf{q}\) rotation, \(\mathbf{s}\) scale, \(\mathbf{c}\) spherical harmonics coefficients, and \(o\) opacity.  
+                                However, this parametric space is <b>ill-suited for learning</b>:
+                                <ul>
+                                    <li><i>Non-uniqueness</i>: distinct parameter sets (e.g., \(\mathbf{q}\) vs. \(-\mathbf{q}\)) produce identical renderings.</li>
+                                    <li><i>Numerical heterogeneity</i>: parameters span different ranges and reside on distinct manifolds (\(\mathbb{R}^3\), \(SO(3)\), SH space).</li>
+                                    <li><i>Instability</i>: autoencoders trained on parameters collapse under domain shifts and noise.</li>
+                                </ul>
+                                These issues motivate a new representation that ensures uniqueness, homogeneity, and geometric consistency.
+                            </p>
+                            <div class="figure">
+                                <img src="images/teaser.png" alt="teaser" class="img-fluid lightbox-trigger"/>
+                                <figcaption class="figure-caption mt-3">
+                                    Figure 1: Overview of our method. We propose a novel embedding representation for 3D Gaussian Splatting 
+                                    based on continuous submanifold fields. Our approach effectively captures the intrinsic information of 
+                                    Gaussian primitives, facilitating improved learning and representation of 3DGS.
+                                </figcaption>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-5">
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <h4 class="m-0">Submanifold Field Representation of 3DGS</h4>
+                            <button class="btn btn-light btn-collapse hide" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSF" aria-expanded="false" aria-controls="collapseSF">
+                                <i class="bi bi-arrows-collapse"></i>
+                            </button>
+                        </div>
+                        <div class="collapse show" id="collapseSF">
+                            <div style="overflow-y: scroll;">
+                                <p>
+                                    Each Gaussian primitive is mapped to a <b>submanifold field</b> defined on its iso-probability ellipsoid:
+                                    <span class="math">\( \mathcal{M} = \{\mathbf{x} \in \mathbb{R}^3 \mid (\mathbf{x}-\boldsymbol{\mu})^\top \Sigma^{-1}(\mathbf{x}-\boldsymbol{\mu}) = r^2 \}\)</span>,  
+                                    with color field <span class="math">\(F(\mathbf{x}) = \sigma(o)\cdot \text{Color}(\mathbf{d}_\mathbf{x})\)</span>, where \(\mathbf{d}_\mathbf{x} = (\mathbf{x}-\boldsymbol{\mu})/\|\mathbf{x}-\boldsymbol{\mu}\|\).  
+                                    This mapping is provably <i>unique</i> and injective, unlike the parametric case.
+                                </p>
+                                <p>
+                                    We discretize \((\mathcal{M},F)\) as a colored point cloud and encode it using a <b>Submanifold Field VAE (SF-VAE)</b>:
+                                    <ul>
+                                        <li>Encoder: PointNet maps sampled points to a 32-D latent code.</li>
+                                        <li>Decoder: reconstructs the field and recovers Gaussian parameters via PCA + SH fitting.</li>
+                                        <li>Loss: Wasserstein-2 based <b>Manifold Distance (M-Dist)</b>, aligning spatial and color similarity:
+                                            <span class="math">\( d^2((\mathbf{x},c_x),(\mathbf{y},c_y)) = \|\mathbf{x}-\mathbf{y}\|^2 + \lambda \|c_x - c_y\|^2 \)</span>.
+                                        </li>
+                                    </ul>
+                                </p>
+                            </div>
+                            <div class="figure">
+                                <img src="images/sfvae.png" alt="sfvae" class="img-fluid lightbox-trigger"/>
+                                <figcaption class="figure-caption mt-3">
+                                    Figure 2: Submanifold Field VAE pipeline. Point clouds sampled from iso-probability surfaces are encoded, embedded, and reconstructed.
+                                </figcaption>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-5">
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <h4 class="m-0">Evaluation</h4>
+                            <button class="btn btn-light btn-collapse hide" type="button" data-bs-toggle="collapse" data-bs-target="#collapseEval" aria-expanded="false" aria-controls="collapseEval">
+                                <i class="bi bi-arrows-collapse"></i>
+                            </button>
+                        </div>
+                        <div class="collapse show" id="collapseEval">
+                            <p>
+                                We evaluate on <b>ShapeSplat</b> and <b>Mip-NeRF 360</b>, comparing submanifold fields with parametric baselines under matched capacity.
+                                Key results:
+                                <ul>
+                                    <li><b>Higher fidelity</b>: SF-VAE achieves PSNR↑63.4 vs 44.7/37.5 for parametric baselines (ShapeSplat).</li>
+                                    <li><b>Generalization</b>: superior cross-domain transfer (object → scene PSNR↑19.2 vs 9.8 for parametric).</li>
+                                    <li><b>Robustness</b>: embeddings resilient to noise; interpolations smooth and semantically consistent.</li>
+                                    <li><b>Better latent structure</b>: unsupervised clustering on SF embeddings shows clearer semantic separation.</li>
+                                </ul>
+                            </p>
+                            <div class="figure">
+                                <img src="images/results.png" alt="results" class="img-fluid lightbox-trigger"/>
+                                <img src="images/robustness.png" alt="robustness" class="img-fluid lightbox-trigger"/>
+                                <img src="images/cluster.png" alt="cluster" class="img-fluid lightbox-trigger"/>
+                                <figcaption class="figure-caption mt-3">
+                                    Figure 3: Reconstruction and latent space evaluation. Submanifold fields yield higher perceptual fidelity, robustness, and semantic clustering.
+                                </figcaption>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal fade" id="imageLightboxModal" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered modal-xl">
+                            <div class="modal-content bg-transparent border-0">
+                                <button type="button" class="btn-close btn-close-white ms-auto" id="modal-close-btn" data-bs-dismiss="modal" aria-label="Close"></button>
+                                <div class="modal-body p-0 d-flex justify-content-center">
+                                    <img id="lightboxImage" src="" alt="enlarged image" class="img-fluid shadow"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+            <div class="footer col-md-12 px-4 py-3">
+                <div class="cilix-info">
+                    Copyright &copy;
+                    <span id="copyright-year"></span>
+                    Paper Authors. All rights reserved.
+                </div>
+                <div class="update">
+                    Last updated: 2025-10-3
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        var btnCollapse = document.getElementsByClassName("btn-collapse");
+        for (var i = 0; i < btnCollapse.length; i++) {
+            btnCollapse[i].addEventListener("click", function() {
+                var icon = this.children[0].classList;
+                if (icon.contains("bi-arrows-collapse")) {
+                    icon.remove("bi-arrows-collapse");
+                    icon.add("bi-arrows-expand");
+                } else {
+                    icon.remove("bi-arrows-expand");
+                    icon.add("bi-arrows-collapse");
+                }                
+            });
+        }
+
+        let menuOpen = false;
+        function toggleMenu() {
+            const navbarMenu = document.getElementById('navbarMenu');
+            const menuButton = document.getElementById('menu-button')
+            menuOpen = !menuOpen;
+            if (menuOpen) {
+                navbarMenu.classList.add('mobile-show');
+                menuButton.innerHTML = "<i class='bi bi-x-lg'></i>";
+            } else {
+                navbarMenu.classList.remove('mobile-show');
+                menuButton.innerHTML = "<i class='bi bi-list'></i>";
+            }
+        }
+
+        window.onload = function() {
+            var currentYear = new Date().getFullYear();
+            var copyrightElement = document.querySelector('#copyright-year');
+            copyrightElement.innerHTML = currentYear;
+        }
+
+        function openInfoBanner() {
+            var infoBanner = document.getElementById('info-banner');
+            infoBanner.style.display = 'block';
+            infoBanner.style.visibility = 'visible';
+        }
+
+        function toggleInfoBanner() {
+            var infoBanner = document.getElementById('info-banner');
+            infoBanner.style.display = 'none';
+            infoBanner.style.visibility = 'hidden';
+        }
+
+        // Image lightbox
+        document.querySelectorAll('.lightbox-trigger').forEach(img => {
+            img.addEventListener('click', () => {
+                const modalEl = document.getElementById('imageLightboxModal');
+                const modalImg = document.getElementById('lightboxImage');
+                modalImg.src = img.src;
+                modalImg.alt = img.alt || 'enlarged image';
+                const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+                modal.show();
+            });
+        });
+    </script>
+</body>
+</html>
