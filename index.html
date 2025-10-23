@@ -128,7 +128,9 @@
                                         <li>Encoder: PointNet maps sampled points to a 32-D latent code.</li>
                                         <li>Decoder: reconstructs the field and recovers Gaussian parameters via PCA + SH fitting.</li>
                                         <li>Loss: Wasserstein-2 based <b>Manifold Distance (M-Dist)</b>, aligning spatial and color similarity:
-                                            <span class="math">\( d^2((\mathbf{x},c_x),(\mathbf{y},c_y)) = \|\mathbf{x}-\mathbf{y}\|^2 + \lambda \|c_x - c_y\|^2 \)</span>.
+                                            <span class="math">\( d^2((\mathbf{x},c_x),(\mathbf{y},c_y)) = \|\mathbf{x}-\mathbf{y}\|^2 + \lambda \|c_x - c_y\|^2 \)</span>. 
+                                            We can discretize it as:
+                                            <span class="math">\( \hat{W}_2^2(\mathcal{P}, \hat{\mathcal{P}}) = \min_{\mathbf{\Gamma} \in \Gamma(\hat{\sigma}, \hat{\sigma}')} \sum_{(\mathbf{x}_i, c_{x_i}) \in \mathcal{P}} \sum_{(\mathbf{y}_j, c_{y_j}) \in \hat{\mathcal{P}}} \mathbf{\Gamma}_{ij} \left(d^2\big((\mathbf{x}_i, c_{x_i}), (\mathbf{y}_j, c_{y_j})\big)\right) \).</span>
                                         </li>
                                     </ul>
                                 </p>
